@@ -1,0 +1,11 @@
+# Generated files
+*.elc
+*-pkg.el
+*.tar
+TAGS
+doc/unify-opening.texi
+doc/unify-opening.info
+
+# Packages
+.cask
+elpa
