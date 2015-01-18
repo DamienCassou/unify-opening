@@ -3,7 +3,12 @@
 ;; Copyright (C) 2015 Damien Cassou
 
 ;; Author: Damien Cassou <damien.cassou@gmail.com>
+;; Url: https://github.com/DamienCassou/unify-opening
+;; GIT: https://github.com/DamienCassou/unify-opening
 ;; Version: 0.1
+;; Package-Requires: ((emacs "24.4"))
+;; Created: 16 Jan 2015
+;; Keywords: dired org mu4e open runner extension file
 
 ;; This file is not part of GNU Emacs.
 
@@ -21,8 +26,13 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-
-;; Make everything use the same mechanism to open files
+;; Make everything use the same mechanism to open files. Currently,
+;; `dired` has its mechanism, `org-mode` uses something different (the
+;; `org-file-apps` variable), and `mu4e` something else (a simple
+;; prompt). This package makes sure that each package uses the
+;; mechanism of `dired`. I advise you to install the
+;; [`runner`](https://github.com/thamer/runner) package to improve the
+;; `dired` mechanism.
 
 ;;; Code:
 
