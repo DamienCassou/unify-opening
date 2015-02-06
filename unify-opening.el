@@ -73,6 +73,16 @@ Asking for best CMD to use to open FILE is done through
    :filter-args
    #'unify-opening-mu4e-view-open-attachment-with))
 
+(with-eval-after-load "helm-external"
+  (defun unify-opening-helm-get-default-program-for-file (filename)
+    "Use `unify-opening-find-cmd' to select which command to open files with.
+This method will be triggered when typing\\<helm-find-files-map> \\[helm-ff-run-open-file-externally] during execution of `helm-find-files' (\\<global-map>\\[helm-find-files])."
+    (unify-opening-find-cmd filename))
+  (advice-add
+   'helm-get-default-program-for-file
+   :override
+   #'unify-opening-helm-get-default-program-for-file))
+
 (provide 'unify-opening)
 
 ;;; unify-opening.el ends here
