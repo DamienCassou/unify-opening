@@ -36,6 +36,12 @@
 
 ;;; Code:
 
+;; Avoid warnings about undefined variables and functions
+(declare-function dired-do-async-shell-command "dired-aux")
+(declare-function dired-guess-shell-command "dired-x")
+(declare-function mu4e~view-get-attach "ext:mu4e-view")
+(eval-when-compile (defvar org-file-apps))
+
 (defun unify-opening-find-cmd (file)
   "Return a string representing the best command to open FILE.
 This method uses `dired-guess-shell-command'.  The runner package, which I
@@ -71,7 +77,7 @@ Asking for best CMD to use to open FILE is done through
   (advice-add
    'mu4e-view-open-attachment-with
    :filter-args
-   #'unify-opening-mu4e-view-open-attachment-with))
+   'unify-opening-mu4e-view-open-attachment-with))
 
 (with-eval-after-load "helm-external"
   (defun unify-opening-helm-get-default-program-for-file (filename)
@@ -81,7 +87,7 @@ This method will be triggered when typing\\<helm-find-files-map> \\[helm-ff-run-
   (advice-add
    'helm-get-default-program-for-file
    :override
-   #'unify-opening-helm-get-default-program-for-file))
+   'unify-opening-helm-get-default-program-for-file))
 
 (provide 'unify-opening)
 
