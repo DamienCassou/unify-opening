@@ -79,6 +79,8 @@ Asking for best CMD to use to open FILE is done through
    :filter-args
    'unify-opening-mu4e-view-open-attachment-with))
 
+;;; When listing files from Helm, make sure the "Open file externally" action
+;;; uses `unify-opening'.
 (with-eval-after-load "helm-external"
   (defun unify-opening-helm-get-default-program-for-file (filename)
     "Use `unify-opening-find-cmd' to select which command to open files with.
