@@ -91,6 +91,26 @@ This method will be triggered when typing\\<helm-find-files-map> \\[helm-ff-run-
    :override
    'unify-opening-helm-get-default-program-for-file))
 
+;;; Make sure to use Helm (if it is loaded) when choosing an application to open
+;;; a file.
+(with-eval-after-load "helm"
+  (with-eval-after-load "dired-x"
+    (defun my:dired-guess-shell-command (original-fun prompt files)
+      "Ask user with PROMPT for a shell command, guessing a default from FILES."
+      (let ((default (dired-guess-default files)))
+        (if (or (null default) (not (listp default)))
+            (funcall original-fun prompt files)
+          (let ((choice (helm
+                         :prompt "command: "
+                         :sources `(((name . "Commands")
+                                     (candidates . ,default)
+                                     (action . (("Execute" . identity))))))))
+            (or choice (funcall original-fun prompt files))))))
+    (advice-add
+     'dired-guess-shell-command
+     :around
+     'my:dired-guess-shell-command)))
+
 (provide 'unify-opening)
 
 ;;; unify-opening.el ends here
