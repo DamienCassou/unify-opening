@@ -77,7 +77,28 @@ Asking for best CMD to use to open FILE is done through
   (advice-add
    'mu4e-view-open-attachment-with
    :filter-args
-   'unify-opening-mu4e-view-open-attachment-with))
+   'unify-opening-mu4e-view-open-attachment-with)
+
+  (defun unify-opening-mu4e-view-open-attachment (original-fun &optional msg attnum)
+    "Open attachment number ATTNUM from MSG.
+If MSG is nil use the message returned by `message-at-point'.
+If ATTNUM is nil ask for the attachment number."
+    (interactive)
+    (let* ((msg (or msg (mu4e-message-at-point)))
+           (attnum (or attnum
+                       (mu4e~view-get-attach-num "Attachment to open" msg)))
+           (att (or (mu4e~view-get-attach msg attnum)))
+           (index (plist-get att :index))
+           (docid (mu4e-message-field msg :docid))
+           (mimetype (plist-get att :mime-type)))
+      (if (and mimetype (string= mimetype "message/rfc822"))
+          (funcall original-fun msg attnum)
+        (mu4e-view-open-attachment-with msg attnum))))
+
+  (advice-add
+   'mu4e-view-open-attachment
+   :around
+   'unify-opening-mu4e-view-open-attachment))
 
 ;;; When listing files from Helm, make sure the "Open file externally" action
 ;;; uses `unify-opening'.
