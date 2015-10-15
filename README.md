@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/DamienCassou/unify-opening.svg)](https://travis-ci.org/DamienCassou/unify-opening)
+
 # unify-opening
 
 `unify-opening` make packages in Emacs use the same mechanism to open
