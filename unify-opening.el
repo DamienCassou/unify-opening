@@ -58,6 +58,19 @@ Asking for best CMD to use to open FILE is done through
     (require 'dired-aux)
     (dired-do-async-shell-command cmd 0 (list file))))
 
+(with-eval-after-load "mm-decode"
+  (defun unify-opening-mm-interactively-view-part (handle)
+    "Une unify-opening to display HANDLE.
+Designed to replace `mm-interactively-view-part'."
+    (let ((tmpfile (make-temp-file
+                    "emacs-mm-part-"
+                    nil
+                    (mm-handle-filename handle))))
+      (mm-save-part-to-file handle tmpfile)
+      (unify-opening-open tmpfile)))
+  (advice-add #'mm-interactively-view-part :override
+              #'unify-opening-mm-interactively-view-part))
+
 (with-eval-after-load "org"
   (add-to-list 'org-file-apps '(t . (unify-opening-open file))))
 
