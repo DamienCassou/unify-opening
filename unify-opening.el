@@ -40,6 +40,10 @@
 (declare-function dired-do-async-shell-command "dired-aux")
 (declare-function dired-guess-shell-command "dired-x")
 (declare-function mu4e~view-get-attach "ext:mu4e-view")
+(declare-function mm-handle-filename "mm-decode")
+(declare-function mm-save-part-to-file "mm-decode")
+(declare-function mm-interactively-view-part "mm-decode")
+
 (eval-when-compile (defvar org-file-apps))
 
 (defun unify-opening-find-cmd (file)
