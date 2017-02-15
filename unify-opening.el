@@ -5,7 +5,7 @@
 ;; Author: Damien Cassou <damien.cassou@gmail.com>
 ;; Url: https://github.com/DamienCassou/unify-opening
 ;; GIT: https://github.com/DamienCassou/unify-opening
-;; Version: 0.1
+;; Version: 1.1.0
 ;; Package-Requires: ((emacs "24.4"))
 ;; Created: 16 Jan 2015
 ;; Keywords: dired org mu4e open runner extension file
