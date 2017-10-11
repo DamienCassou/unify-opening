@@ -1,4 +1,4 @@
-;;; unify-opening.el --- Make everything use the same mechanism to open files
+;;; unify-opening.el --- Unify the mechanism to open files
 
 ;; Copyright (C) 2015 Damien Cassou
 
@@ -8,7 +8,6 @@
 ;; Version: 1.1.0
 ;; Package-Requires: ((emacs "24.4"))
 ;; Created: 16 Jan 2015
-;; Keywords: dired org mu4e open runner extension file
 
 ;; This file is not part of GNU Emacs.
 
@@ -37,14 +36,20 @@
 ;;; Code:
 
 ;; Avoid warnings about undefined variables and functions
-(declare-function dired-do-async-shell-command "dired-aux")
-(declare-function dired-guess-shell-command "dired-x")
-(declare-function mu4e~view-get-attach "ext:mu4e-view")
-(declare-function mm-handle-filename "mm-decode")
-(declare-function mm-save-part-to-file "mm-decode")
-(declare-function mm-interactively-view-part "mm-decode")
-
-(eval-when-compile (defvar org-file-apps))
+(eval-when-compile
+  (defvar org-file-apps)
+  (declare-function dired-do-async-shell-command "dired-aux")
+  (declare-function dired-guess-default "dired-x")
+  (declare-function dired-guess-shell-command "dired-x")
+  (declare-function helm "ext:helm")
+  (declare-function mm-handle-filename "mm-decode")
+  (declare-function mm-interactively-view-part "mm-decode")
+  (declare-function mm-save-part-to-file "mm-decode")
+  (declare-function mu4e-message-at-point "ext:mu4e-message")
+  (declare-function mu4e-message-field "ext:mu4e-message")
+  (declare-function mu4e-view-open-attachment-with "ext:mu4e-view")
+  (declare-function mu4e~view-get-attach "ext:mu4e-view")
+  (declare-function mu4e~view-get-attach-num "ext:mu4e-view"))
 
 (defun unify-opening-find-cmd (file)
   "Return a string representing the best command to open FILE.
@@ -62,18 +67,18 @@ Asking for best CMD to use to open FILE is done through
     (require 'dired-aux)
     (dired-do-async-shell-command cmd 0 (list file))))
 
-(with-eval-after-load "mm-decode"
-  (defun unify-opening-mm-interactively-view-part (handle)
-    "Une unify-opening to display HANDLE.
+(defun unify-opening-mm-interactively-view-part (handle)
+  "Une unify-opening to display HANDLE.
 Designed to replace `mm-interactively-view-part'."
-    (let ((tmpfile (make-temp-file
-                    "emacs-mm-part-"
-                    nil
-                    (mm-handle-filename handle))))
-      (mm-save-part-to-file handle tmpfile)
-      (unify-opening-open tmpfile)))
-  (advice-add #'mm-interactively-view-part :override
-              #'unify-opening-mm-interactively-view-part))
+  (let ((tmpfile (make-temp-file
+                  "emacs-mm-part-"
+                  nil
+                  (mm-handle-filename handle))))
+    (mm-save-part-to-file handle tmpfile)
+    (unify-opening-open tmpfile)))
+
+(with-eval-after-load "mm-decode"
+  (advice-add #'mm-interactively-view-part :override #'unify-opening-mm-interactively-view-part))
 
 (with-eval-after-load "org"
   (add-to-list 'org-file-apps '(t . (unify-opening-open file))))
@@ -131,23 +136,21 @@ This method will be triggered when typing\\<helm-find-files-map> \\[helm-ff-run-
 
 ;;; Make sure to use Helm (if it is loaded) when choosing an application to open
 ;;; a file.
+(defun unify-opening-dired-guess-shell-command (original-fun prompt files)
+  "Advice ORIGINAL-FUN to ask user with PROMPT for a shell command, guessing a default from FILES."
+  (let ((default (dired-guess-default files)))
+    (if (or (null default) (not (listp default)))
+        (funcall original-fun prompt files)
+      (let ((choice (helm
+                     :prompt "command: "
+                     :sources `(((name . "Commands")
+                                 (candidates . ,default)
+                                 (action . (("Execute" . identity))))))))
+        (or choice (funcall original-fun prompt files))))))
+
 (with-eval-after-load "helm"
   (with-eval-after-load "dired-x"
-    (defun my:dired-guess-shell-command (original-fun prompt files)
-      "Ask user with PROMPT for a shell command, guessing a default from FILES."
-      (let ((default (dired-guess-default files)))
-        (if (or (null default) (not (listp default)))
-            (funcall original-fun prompt files)
-          (let ((choice (helm
-                         :prompt "command: "
-                         :sources `(((name . "Commands")
-                                     (candidates . ,default)
-                                     (action . (("Execute" . identity))))))))
-            (or choice (funcall original-fun prompt files))))))
-    (advice-add
-     'dired-guess-shell-command
-     :around
-     'my:dired-guess-shell-command)))
+    (advice-add #'dired-guess-shell-command :around #'unify-opening-dired-guess-shell-command)))
 
 (provide 'unify-opening)
 
