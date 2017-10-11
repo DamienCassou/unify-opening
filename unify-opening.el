@@ -75,8 +75,12 @@ Designed to replace `mm-interactively-view-part'."
 (with-eval-after-load "mm-decode"
   (advice-add #'mm-interactively-view-part :override #'unify-opening-mm-interactively-view-part))
 
+(defun unify-opening--org-default-opener (file link)
+  "Open FILE with unify-opening.  Ignore LINK."
+  (unify-opening-open file))
+
 (with-eval-after-load "org"
-  (add-to-list 'org-file-apps '(t . (unify-opening-open file))))
+  (add-to-list 'org-file-apps '(t . unify-opening--org-default-opener)))
 
 ;;; When listing files from Helm, make sure the "Open file externally" action
 ;;; uses `unify-opening'.
