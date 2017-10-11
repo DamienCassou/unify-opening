@@ -44,12 +44,7 @@
   (declare-function helm "ext:helm")
   (declare-function mm-handle-filename "mm-decode")
   (declare-function mm-interactively-view-part "mm-decode")
-  (declare-function mm-save-part-to-file "mm-decode")
-  (declare-function mu4e-message-at-point "ext:mu4e-message")
-  (declare-function mu4e-message-field "ext:mu4e-message")
-  (declare-function mu4e-view-open-attachment-with "ext:mu4e-view")
-  (declare-function mu4e~view-get-attach "ext:mu4e-view")
-  (declare-function mu4e~view-get-attach-num "ext:mu4e-view"))
+  (declare-function mm-save-part-to-file "mm-decode"))
 
 (defun unify-opening-find-cmd (file)
   "Return a string representing the best command to open FILE.
@@ -82,45 +77,6 @@ Designed to replace `mm-interactively-view-part'."
 
 (with-eval-after-load "org"
   (add-to-list 'org-file-apps '(t . (unify-opening-open file))))
-
-(with-eval-after-load "mu4e"
-  (defun unify-opening-mu4e-view-open-attachment-with (args)
-    "Use unify-opening to select which command to open attachments with."
-    (let* ((msg (car args))        ;; 1st original argument
-           (attachnum (cadr args)) ;; 2nd original argument
-           (cmd (car (cddr args))) ;; 3rd original argument
-           (attachment (mu4e~view-get-attach msg attachnum))
-           (attachment-filename (plist-get attachment :name)))
-      (list msg
-            attachnum
-            (or cmd
-                (unify-opening-find-cmd attachment-filename)))))
-
-  (advice-add
-   'mu4e-view-open-attachment-with
-   :filter-args
-   'unify-opening-mu4e-view-open-attachment-with)
-
-  (defun unify-opening-mu4e-view-open-attachment (original-fun &optional msg attnum)
-    "Open attachment number ATTNUM from MSG.
-If MSG is nil use the message returned by `message-at-point'.
-If ATTNUM is nil ask for the attachment number."
-    (interactive)
-    (let* ((msg (or msg (mu4e-message-at-point)))
-           (attnum (or attnum
-                       (mu4e~view-get-attach-num "Attachment to open" msg)))
-           (att (or (mu4e~view-get-attach msg attnum)))
-           (index (plist-get att :index))
-           (docid (mu4e-message-field msg :docid))
-           (mimetype (plist-get att :mime-type)))
-      (if (and mimetype (string= mimetype "message/rfc822"))
-          (funcall original-fun msg attnum)
-        (mu4e-view-open-attachment-with msg attnum))))
-
-  (advice-add
-   'mu4e-view-open-attachment
-   :around
-   'unify-opening-mu4e-view-open-attachment))
 
 ;;; When listing files from Helm, make sure the "Open file externally" action
 ;;; uses `unify-opening'.
