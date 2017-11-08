@@ -44,7 +44,8 @@
   (declare-function helm "ext:helm")
   (declare-function mm-handle-filename "mm-decode")
   (declare-function mm-interactively-view-part "mm-decode")
-  (declare-function mm-save-part-to-file "mm-decode"))
+  (declare-function mm-save-part-to-file "mm-decode")
+  (declare-function counsel-locate-action-extern "counsel"))
 
 (defun unify-opening-find-cmd (file)
   "Return a string representing the best command to open FILE.
@@ -111,6 +112,9 @@ This method will be triggered when typing\\<helm-find-files-map> \\[helm-ff-run-
 (with-eval-after-load "helm"
   (with-eval-after-load "dired-x"
     (advice-add #'dired-guess-shell-command :around #'unify-opening-dired-guess-shell-command)))
+
+(with-eval-after-load "counsel"
+  (advice-add #'counsel-locate-action-extern :override #'unify-opening-open))
 
 (provide 'unify-opening)
 
