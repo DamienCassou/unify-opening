@@ -28,7 +28,7 @@ improve the ~dired~ mechanism.
 
 Supported packages:
 - mail clients using mm-decode (e.g., notmuch and mu4e)
-- completion mechanisms (currently helm and counsel)
+- completion mechanisms (currently consult, counsel and helm)
 - org mode
 - dired-x
 
