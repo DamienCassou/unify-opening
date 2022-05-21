@@ -126,6 +126,12 @@ Around advice for ORIGINAL-FUN `dired-guess-shell-command' to use
   "Configure unify-opening to open files from `counsel'."
   (advice-add #'counsel-locate-action-extern :override #'unify-opening-open))
 
+(declare-function consult-file-externally "ext:consult.el")
+
+(defun unify-opening-setup-for-consult ()
+  "Configure unify-opening to open files from `consult'."
+  (advice-add #'consult-file-externally :override #'unify-opening-open))
+
 (provide 'unify-opening)
 
 ;;; unify-opening.el ends here
