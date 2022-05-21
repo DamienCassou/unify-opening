@@ -102,6 +102,9 @@ This method will be triggered when typing\\<helm-find-files-map>
    :override
    'unify-opening-helm-get-default-program-for-file))
 
+(defvar unify-opening--guess-shell-command-hist nil
+  "Minibuffer history of `unify-opening-guess-shell-command' commands.")
+
 (defun unify-opening-guess-shell-command (files)
   "Ask user which command to use to open FILES.
 
@@ -109,7 +112,11 @@ Guess a list of suited commands to open FILES, then present the list to the
 user so s·he can choose."
   (let ((commands (dired-guess-default files)))
     (when (consp commands)
-      (completing-read "command: " commands nil))))
+      (completing-read
+       "command: "
+       commands
+       nil nil nil
+       'unify-opening--guess-shell-command-hist))))
 
 (defun unify-opening-dired-guess-shell-command (original-fun prompt files)
   "Ask user with PROMPT for a shell command, guessing a default from FILES.
@@ -135,3 +142,5 @@ Around advice for ORIGINAL-FUN `dired-guess-shell-command' to use
 (provide 'unify-opening)
 
 ;;; unify-opening.el ends here
+
+;; LocalWords:  Minibuffer
