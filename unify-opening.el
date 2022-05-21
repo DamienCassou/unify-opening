@@ -1,6 +1,6 @@
 ;;; unify-opening.el --- Unify the mechanism to open files
 
-;; Copyright (C) 2015 Damien Cassou
+;; Copyright (C) 2015-2022 Damien Cassou
 
 ;; Author: Damien Cassou <damien.cassou@gmail.com>
 ;; Url: https://github.com/DamienCassou/unify-opening
@@ -64,7 +64,7 @@ Asking for best CMD to use to open FILE is done through
     (dired-do-async-shell-command cmd 0 (list file))))
 
 (defun unify-opening-mm-interactively-view-part (handle)
-  "Une unify-opening to display HANDLE.
+  "Use unify-opening to display HANDLE.
 Designed to replace `mm-interactively-view-part'."
   (let ((tmpfile (make-temp-file
                   "emacs-mm-part-"
@@ -73,25 +73,32 @@ Designed to replace `mm-interactively-view-part'."
     (mm-save-part-to-file handle tmpfile)
     (unify-opening-open tmpfile)))
 
-(with-eval-after-load "mm-decode"
+(defun unify-opening-setup-for-mm-decode ()
+  "Configure unify-opening to open email attachments."
   (advice-add #'mm-interactively-view-part :override #'unify-opening-mm-interactively-view-part))
 
 (defun unify-opening--org-default-opener (file link)
   "Open FILE with unify-opening.  Ignore LINK."
   (unify-opening-open file))
 
-(with-eval-after-load "org"
+(defun unify-opening-setup-for-org ()
+  "Configure unify-opening to open files from `org-mode'."
   (add-to-list 'org-file-apps '(t . unify-opening--org-default-opener)))
 
-;;; When listing files from Helm, make sure the "Open file externally" action
-;;; uses `unify-opening'.
-(with-eval-after-load "helm-external"
-  (defun unify-opening-helm-get-default-program-for-file (filename)
-    "Use `unify-opening-find-cmd' to select which command to open files with.
-This method will be triggered when typing\\<helm-find-files-map> \\[helm-ff-run-open-file-externally] during execution of `helm-find-files' (\\<global-map>\\[helm-find-files])."
-    (unify-opening-find-cmd filename))
+(defun unify-opening-helm-get-default-program-for-file (filename)
+  "Use `unify-opening-find-cmd' to select which command to open FILENAME with.
+
+This method will be triggered when typing\\<helm-find-files-map>
+\\[helm-ff-run-open-file-externally] during execution of
+`helm-find-files' (\\<global-map>\\[helm-find-files])."
+  (unify-opening-find-cmd filename))
+
+(declare-function helm-get-default-program-for-file "ext:helm-external.el")
+
+(defun unify-opening-setup-for-helm ()
+  "Configure unify-opening to open files from `helm'."
   (advice-add
-   'helm-get-default-program-for-file
+   #'helm-get-default-program-for-file
    :override
    'unify-opening-helm-get-default-program-for-file))
 
@@ -105,14 +112,18 @@ user so s·he can choose."
       (completing-read "command: " commands nil))))
 
 (defun unify-opening-dired-guess-shell-command (original-fun prompt files)
-  "Advice ORIGINAL-FUN to ask user with PROMPT for a shell command, guessing a default from FILES."
+  "Ask user with PROMPT for a shell command, guessing a default from FILES.
+Around advice for ORIGINAL-FUN `dired-guess-shell-command' to use
+`unify-opening'."
   (or (unify-opening-guess-shell-command files)
       (funcall original-fun prompt files)))
 
-(with-eval-after-load "dired-x"
+(defun unify-opening-setup-for-dired-x ()
+  "Configure unify-opening to open files from `dired'."
   (advice-add #'dired-guess-shell-command :around #'unify-opening-dired-guess-shell-command))
 
-(with-eval-after-load "counsel"
+(defun unify-opening-setup-for-counsel ()
+  "Configure unify-opening to open files from `counsel'."
   (advice-add #'counsel-locate-action-extern :override #'unify-opening-open))
 
 (provide 'unify-opening)

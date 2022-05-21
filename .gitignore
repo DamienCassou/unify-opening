@@ -9,3 +9,4 @@ doc/unify-opening.info
 # Packages
 .cask
 elpa
+/makel.mk
