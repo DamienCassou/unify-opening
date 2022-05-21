@@ -61,7 +61,7 @@ Asking for best CMD to use to open FILE is done through
 `unify-opening-find-cmd'."
   (let ((cmd (or cmd (unify-opening-find-cmd file))))
     (require 'dired-aux)
-    (dired-do-async-shell-command cmd 0 (list file))))
+    (dired-do-async-shell-command cmd 0 (list (expand-file-name file)))))
 
 (defun unify-opening-mm-interactively-view-part (handle)
   "Use unify-opening to display HANDLE.
@@ -102,6 +102,9 @@ This method will be triggered when typing\\<helm-find-files-map>
    :override
    'unify-opening-helm-get-default-program-for-file))
 
+(defvar unify-opening--guess-shell-command-hist nil
+  "Minibuffer history of `unify-opening-guess-shell-command' commands.")
+
 (defun unify-opening-guess-shell-command (files)
   "Ask user which command to use to open FILES.
 
@@ -109,7 +112,18 @@ Guess a list of suited commands to open FILES, then present the list to the
 user so s·he can choose."
   (let ((commands (dired-guess-default files)))
     (when (consp commands)
-      (completing-read "command: " commands nil))))
+      (completing-read
+       "command: "
+       (lambda (string predicate action)
+         (if (eq action 'metadata)
+             ;; don't sort candidates so the user can learn their
+             ;; positions by heart:
+             `(metadata (display-sort-function . ,#'identity)
+                        (cycle-sort-function . ,#'identity))
+           (complete-with-action
+            action commands string predicate)))
+       nil nil nil
+       'unify-opening--guess-shell-command-hist))))
 
 (defun unify-opening-dired-guess-shell-command (original-fun prompt files)
   "Ask user with PROMPT for a shell command, guessing a default from FILES.
@@ -135,3 +149,5 @@ Around advice for ORIGINAL-FUN `dired-guess-shell-command' to use
 (provide 'unify-opening)
 
 ;;; unify-opening.el ends here
+
+;; LocalWords:  Minibuffer
