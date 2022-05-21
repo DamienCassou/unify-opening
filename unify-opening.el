@@ -1,6 +1,6 @@
 ;;; unify-opening.el --- Unify the mechanism to open files
 
-;; Copyright (C) 2015 Damien Cassou
+;; Copyright (C) 2015-2022 Damien Cassou
 
 ;; Author: Damien Cassou <damien.cassou@gmail.com>
 ;; Url: https://github.com/DamienCassou/unify-opening
