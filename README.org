@@ -1,0 +1,62 @@
+* Unify-Opening
+  #+BEGIN_HTML
+      <p>
+        <a href="https://stable.melpa.org/#/unify-opening">
+          <img alt="MELPA Stable" src="https://stable.melpa.org/packages/unify-opening-badge.svg"/>
+        </a>
+
+        <a href="https://melpa.org/#/unify-opening">
+          <img alt="MELPA" src="https://melpa.org/packages/unify-opening-badge.svg"/>
+        </a>
+
+        <a href="https://github.com/DamienCassou/unify-opening/actions">
+          <img alt="pipeline status" src="https://github.com/DamienCassou/unify-opening/actions/workflows/test.yml/badge.svg" />
+        </a>
+      </p>
+  #+END_HTML
+
+~unify-opening~ make packages in Emacs use the same mechanism to open
+files with an external application.
+
+** Summary
+
+Currently, ~dired~ has its mechanism, ~org-mode~ uses something
+different (the ~org-file-apps~ variable), and ~mu4e~ something else (a
+simple prompt). This package makes sure that each package uses the
+mechanism of ~dired~. I advise you to install the [[https://github.com/thamer/runner][runner]] package to
+improve the ~dired~ mechanism.
+
+Supported packages:
+- mail clients using mm-decode (e.g., notmuch and mu4e)
+- completion mechanisms (currently helm and counsel)
+- org mode
+- dired-x
+
+** Configuring
+
+The following should be added to your configuration file to install
+unify-opening everywhere it can be installed.
+
+#+begin_src emacs-lisp
+  (with-eval-after-load "mm-decode"
+    (unify-opening-setup-for-mm-decode))
+
+  (with-eval-after-load "org"
+    (unify-opening-setup-for-org))
+
+  (with-eval-after-load "helm-external"
+    (unify-opening-setup-for-helm))
+
+  (with-eval-after-load "dired-x"
+    (unify-opening-setup-for-dired-x))
+
+  (with-eval-after-load "counsel"
+    (unify-opening-setup-for-counsel))
+#+end_src
+** Contributing
+
+Yes, please do! See [[file:CONTRIBUTING.md][CONTRIBUTING]] for guidelines.
+
+** License
+
+See [[file:COPYING][COPYING]]. Copyright (c) 2015-2022 [[mailto:damien@cassou.me][Damien Cassou]].
