@@ -61,7 +61,7 @@ Asking for best CMD to use to open FILE is done through
 `unify-opening-find-cmd'."
   (let ((cmd (or cmd (unify-opening-find-cmd file))))
     (require 'dired-aux)
-    (dired-do-async-shell-command cmd 0 (list file))))
+    (dired-do-async-shell-command cmd 0 (list (expand-file-name file)))))
 
 (defun unify-opening-mm-interactively-view-part (handle)
   "Use unify-opening to display HANDLE.
