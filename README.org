@@ -52,6 +52,9 @@ unify-opening everywhere it can be installed.
 
   (with-eval-after-load "counsel"
     (unify-opening-setup-for-counsel))
+
+  (with-eval-after-load "consult"
+    (unify-opening-setup-for-consult))
 #+end_src
 ** Contributing
 
